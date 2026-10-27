@@ -1,0 +1,26 @@
+Copyright (c) 2026 Bea Krä. Všechna práva vyhrazena.
+
+Tento repozitář a vše, co obsahuje (fotografie, texty, grafika, design,
+animace a zdrojový kód), je autorským dílem Bea Krä.
+
+Obsah je zveřejněn pouze k prohlížení. Bez předchozího písemného souhlasu
+autorky není dovoleno jej kopírovat, upravovat, šířit, publikovat ani jinak
+používat, a to ani částečně.
+
+---
+
+Copyright (c) 2026 Bea Krä. All rights reserved.
+
+This repository and all of its contents (photographs, text, graphics, design,
+animations and source code) are the work of Bea Krä.
+
+The content is published for viewing only. No part of it may be copied,
+modified, distributed, published or otherwise used without the author's
+prior written permission.
+
+---
+
+Výjimky / Third-party components:
+
+- assets/vendor/lenis.min.js: Lenis, (c) darkroom.engineering, MIT License.
+- assets/fonts/: písma mají vlastní licence, viz assets/fonts/LICENCE.md.

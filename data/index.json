@@ -1,0 +1,100 @@
+{
+ "site": {
+  "jmeno": "Bea Krä",
+  "symbol": "",
+  "nadpis": "Photography",
+  "pismo": "tox-typewriter",
+  "pismoJmena": "uncle-typewriter",
+  "uvod": "",
+  "instagram": "",
+  "email": "",
+  "zobrazitExif": true,
+  "plynuleScrollovani": true
+ },
+ "albums": [
+  {
+   "slug": "mountains",
+   "title": "Mountains",
+   "date": "August 2025",
+   "place": "",
+   "description": "Generated sample images for testing the site. Delete this folder once you add your own albums.",
+   "count": 14,
+   "cover": {
+    "id": "img-1007",
+    "w": 2400,
+    "h": 1600,
+    "v": [
+     640,
+     1280,
+     2400
+    ],
+    "c": "#c8c8b8",
+    "q": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQBACdASoYABAAPu1krU6ppaSiMAgBMB2JZwCdACHXSXnnt8R+57/+RAD+j/ytpnsaUImK91sS7DjsqfAlSi2oioByyaveCNTTOVgAEz4AAA==",
+    "x": "Demo · 35 mm · f/2.8 · 1/250 s · ISO 200"
+   }
+  },
+  {
+   "slug": "sea",
+   "title": "Sea",
+   "date": "May 2025",
+   "place": "",
+   "description": "Generated sample images for testing the site. Delete this folder once you add your own albums.",
+   "count": 11,
+   "cover": {
+    "id": "img-1007",
+    "w": 2400,
+    "h": 1600,
+    "v": [
+     640,
+     1280,
+     2400
+    ],
+    "c": "#d8b8b8",
+    "q": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADwAwCdASoYABAAPu1kqk2ppaQiMAgBMB2JYwCxDMgDA1g2IKvd2+HAAP6P5yu969ySYcebwSCZY5pDXSq4DlgTQAA=",
+    "x": "Demo · 23 mm · f/8 · 1/125 s · ISO 400"
+   }
+  },
+  {
+   "slug": "fog",
+   "title": "Fog",
+   "date": "November 2024",
+   "place": "",
+   "description": "Generated sample images for testing the site. Delete this folder once you add your own albums.",
+   "count": 12,
+   "cover": {
+    "id": "img-1007",
+    "w": 1920,
+    "h": 2400,
+    "v": [
+     512,
+     1024,
+     1920
+    ],
+    "c": "#d8d8d8",
+    "q": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQBACdASoYAB4APtleo02oPaMiN/qoA7AbCWkAAQHIm+epBhmq5bLSgAD+8BHftWvXfLNyO+y5v/kCGL3BzWkqd+dcRUTfyBwlxRImAAA=",
+    "x": "Demo · 35 mm · f/2.8 · 1/250 s · ISO 200"
+   }
+  },
+  {
+   "slug": "desert",
+   "title": "Desert",
+   "date": "July 2024",
+   "place": "",
+   "description": "Generated sample images for testing the site. Delete this folder once you add your own albums.",
+   "count": 10,
+   "cover": {
+    "id": "img-1007",
+    "w": 2400,
+    "h": 1600,
+    "v": [
+     640,
+     1280,
+     2400
+    ],
+    "c": "#e8c8a8",
+    "q": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAADQAwCdASoYABAAPu1iqk4ppaQiMAgBMB2JQBOgBDv35GDtMOmmvgAA/t5vVDiQ9NeRPHcJ20ju6SbKAlR7M9gdA53vStQRlVW3HURrWvW8AAAA",
+    "x": "Demo · 56 mm · f/1.4 · 1/1000 s · ISO 160"
+   }
+  }
+ ]
+}

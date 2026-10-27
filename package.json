@@ -1,0 +1,17 @@
+{
+  "name": "bea-kra-foto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fotografie Bea Krä",
+  "type": "module",
+  "scripts": {
+    "fotky": "node scripts/build.mjs",
+    "nahled": "node scripts/nahled.mjs",
+    "logo": "node scripts/logo.mjs"
+  },
+  "devDependencies": {
+    "exif-reader": "^2.0.3",
+    "opentype.js": "^1.3.4",
+    "sharp": "^0.35.5"
+  }
+}

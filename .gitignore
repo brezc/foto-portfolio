@@ -1,0 +1,9 @@
+# Originály fotek zůstávají jen v počítači, na GitHub jdou jen webové verze ze složky img/
+alba/
+node_modules/
+.cache/
+.claude/
+.DS_Store
+
+# Písma, která se nesmí volně šířit (viz assets/fonts/LICENCE.md)
+assets/fonts/nezverejnovat/

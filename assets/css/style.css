@@ -1,0 +1,1389 @@
+/* ===== Barvy, písmo, pohyb ===== */
+
+:root {
+  /* Tmavý režim (výchozí): antracit, ne čistá černá. */
+  --bg: #161615;
+  --fg: #ecebe8;
+  --muted: #868480;
+  --line: rgba(236, 235, 232, 0.12);
+  --ph: #232321;
+  --menu-bg: #1e1e1c;
+  --shadow: rgba(0, 0, 0, 0.45);
+  --edge: rgba(0, 0, 0, 0.14);
+
+  --serif: 'Instrument Serif', 'Iowan Old Style', 'Times New Roman', serif;
+  --sans: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-soft: cubic-bezier(0.25, 0.1, 0.1, 1);
+
+  --pad: clamp(16px, 4vw, 64px);
+  --gap: clamp(8px, 1.1vw, 18px);
+
+  /* Písmo jména a názvů alb. Vybírá se v site.json klíčem „pismo“, rodinu písma doplní app.js. */
+  --title: var(--serif);
+  --ts: 1;
+  --ease-page: cubic-bezier(0.76, 0, 0.24, 1);
+
+  color-scheme: dark;
+}
+
+/* Světlý režim na přepnutí: skoro bílá s nepatrným nádechem do teplé. */
+:root[data-theme='light'] {
+  --bg: #f4f3f1;
+  --fg: #171717;
+  --muted: #8b8985;
+  --line: rgba(23, 23, 23, 0.12);
+  --ph: #e6e4e0;
+  --menu-bg: #eae8e4;
+  --shadow: rgba(30, 28, 24, 0.16);
+  --edge: rgba(30, 28, 24, 0.05);
+  color-scheme: light;
+}
+
+:root[data-styl='podpis'] {
+  --title: 'Pinyon Script', var(--serif);
+}
+
+:root[data-styl='stroj'] {
+  --serif: var(--title-font, 'Special Elite'), 'Courier Prime', ui-monospace, monospace;
+  --sans: 'Courier Prime', ui-monospace, monospace;
+  --title: var(--serif);
+}
+
+/* Písmo pro celý web, nejen pro nadpisy (např. Tox Typewriter). */
+:root[data-styl='stroj'][data-text='all'] {
+  --sans: var(--serif);
+}
+
+:root[data-text='all'] .meta,
+:root[data-text='all'] .lb-info {
+  font-size: 13.5px;
+}
+
+/* ===== Základ ===== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 15px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 1px solid var(--fg);
+  outline-offset: 4px;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+main {
+  flex: 1;
+  padding: 0 var(--pad);
+  outline: none;
+}
+
+.meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-feature-settings: 'tnum';
+}
+
+/* Lenis (plynulé scrollování) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+/* ===== Hlavička a patička ===== */
+
+.site-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(18px, env(safe-area-inset-top)) var(--pad) 18px;
+  background: transparent;
+  transition: transform 0.8s var(--ease-out), background-color 0.5s var(--ease-soft);
+  view-transition-name: site-header;
+  animation: boot-fade 1.2s var(--ease-soft) 0.1s both;
+}
+
+.site-header.solid {
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+}
+
+.site-header.hide {
+  transform: translateY(-101%);
+}
+
+.brand-logo {
+  display: block;
+  overflow: visible;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  height: 1.3em;
+  font: 400 23px/1 var(--title);
+  font-family: var(--brand-font, var(--title));
+  letter-spacing: -0.005em;
+  --ovr-y: var(--brand-ovr-y, 0em);
+  text-decoration: none;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Vlastní názvy pro přechody: přepínač se plynule posune, když se vedle čárek objeví název alba. */
+.theme-btn {
+  view-transition-name: theme-btn;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+/* Slunce ve světlém režimu, měsíc v tmavém. Paprsky se schovají a stín „ukousne“ ze slunce srpek. */
+.sun-moon {
+  width: 19px;
+  height: 19px;
+  overflow: visible;
+  transition: transform 1.1s var(--ease-out);
+}
+
+.sun-core,
+.sun-rays {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 1.1s var(--ease-out), opacity 0.6s var(--ease-soft);
+}
+
+.moon-shadow {
+  transition: transform 1.1s var(--ease-out);
+}
+
+:root[data-theme='dark'] .sun-moon {
+  transform: rotate(20deg);
+}
+
+:root[data-theme='dark'] .sun-core {
+  transform: scale(1.55);
+}
+
+:root[data-theme='dark'] .moon-shadow {
+  transform: translate(-10px, 3px);
+}
+
+:root[data-theme='dark'] .sun-rays {
+  transform: scale(0.5) rotate(-90deg);
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  :root:not([data-theme='dark']) .theme-btn:hover .sun-rays {
+    transform: rotate(45deg);
+  }
+  :root[data-theme='dark'] .theme-btn:hover .sun-moon {
+    transform: rotate(-5deg);
+  }
+}
+
+/* Potkan vedle jména. Při najetí na jméno se rozběhne. */
+.rat {
+  display: inline-block;
+  margin-left: 0.55em;
+  font-family: 'Euphemia UCAS', 'Gadugi', 'Noto Sans Canadian Aboriginal', system-ui, sans-serif;
+  font-size: 0.85em;
+  letter-spacing: 0;
+  text-transform: none;
+  vertical-align: 0.05em;
+}
+
+@media (hover: hover) {
+  .brand:hover .rat {
+    animation: rat-scurry 1s var(--ease-out);
+  }
+}
+
+@keyframes rat-scurry {
+  0% {
+    transform: none;
+  }
+  25% {
+    transform: translateX(9px) rotate(-5deg);
+  }
+  50% {
+    transform: translateX(5px) rotate(3deg);
+  }
+  75% {
+    transform: translateX(7px) rotate(-2deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+.site-footer {
+  padding: clamp(80px, 16vh, 160px) var(--pad) max(28px, env(safe-area-inset-bottom));
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.footer-art {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: clamp(48px, 9vh, 96px);
+  color: var(--fg);
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.site-footer a {
+  text-decoration: none;
+  transition: color 0.4s;
+}
+
+.site-footer a:hover {
+  color: var(--fg);
+}
+
+/* ===== ASCII obrázky z Braillova písma, kreslené po tečkách (app.js) ===== */
+
+.ascii {
+  display: block;
+  color: var(--fg);
+}
+
+.footer-heart {
+  width: min(400px, 78vw);
+}
+
+/* ===== Zástupné obrázky a jemné načítání ===== */
+
+.ph {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--c, var(--ph));
+}
+
+.ph::before {
+  content: '';
+  position: absolute;
+  inset: -12%;
+  background: var(--q) center / cover no-repeat;
+  filter: blur(22px);
+  transition: opacity 1s var(--ease-soft), visibility 0s 1.1s;
+}
+
+.ph img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1s var(--ease-soft), transform 2.2s var(--ease-out);
+}
+
+.ph.ld img {
+  opacity: 1;
+}
+
+.ph.ld::before {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Objevování při scrollování */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 1.1s var(--ease-soft), transform 1.3s var(--ease-out);
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal.instant {
+  transition: none;
+}
+
+/* ===== Úvodní stránka: alba jako desky podél úhlopříčky ===== */
+
+/* Sekce je vysoká podle počtu alb, scéna uvnitř drží na místě a scrollováním se listuje. */
+.crate {
+  position: relative;
+  margin: 0 calc(var(--pad) * -1);
+}
+
+.crate-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.crate-deck {
+  position: absolute;
+  inset: 0;
+}
+
+.vinyl {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: var(--cw, 23vw);
+  aspect-ratio: 3 / 4;
+  margin: calc(var(--cw, 23vw) * -0.667) 0 0 calc(var(--cw, 23vw) / -2);
+  will-change: transform, opacity;
+}
+
+/* Obal je zkosený tak, že se horní i spodní hrana svažuje doprava dolů, jako složka
+   v přihrádce viděná zboku. Při najetí se trochu povytáhne nahoru. */
+.vinyl-face {
+  position: absolute;
+  inset: 0;
+  transform: skewY(var(--skew, 0.32rad));
+  box-shadow: 18px 14px 34px -22px var(--shadow);
+  transition: transform 0.9s var(--ease-out), box-shadow 0.9s var(--ease-out);
+}
+
+@media (hover: hover) {
+  .vinyl:hover .vinyl-face {
+    transform: translateY(-14px) skewY(var(--skew, 0.32rad));
+  }
+}
+
+.crate-info {
+  position: absolute;
+  top: clamp(96px, 16vh, 150px);
+  left: var(--pad);
+  z-index: 1100;
+  max-width: min(44vw, 520px);
+  pointer-events: none;
+}
+
+/* Při prvním načtení je úvod tichý: žádný název alba, ten se ukáže, až se začne scrollovat. */
+.crate-info,
+.crate-index {
+  transition: opacity 1s var(--ease-soft), translate 1.1s var(--ease-out);
+}
+
+.crate.is-quiet .crate-info,
+.crate.is-quiet .crate-index {
+  opacity: 0;
+  translate: 0 12px;
+  pointer-events: none;
+}
+
+.crate-title {
+  margin: 10px 0 12px;
+  font: 400 clamp(30px, 4vw, 60px) / 1.05 var(--title);
+  letter-spacing: -0.02em;
+}
+
+:root[data-styl='stroj'] .crate-title {
+  font-size: calc(clamp(28px, 3.6vw, 56px) * var(--ts));
+}
+
+.crate-index {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(28px, 6vh, 56px);
+  z-index: 1100;
+  max-height: 40vh;
+  overflow: auto;
+  text-align: right;
+}
+
+.crate-index ol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crate-index a {
+  display: inline-block;
+  color: var(--muted);
+  font: 400 calc(15px * var(--ts)) / 1.3 var(--title);
+  text-decoration: none;
+  transition: color 0.4s var(--ease-soft), transform 0.7s var(--ease-out);
+}
+
+.crate-index a:hover,
+.crate-index a.is-active {
+  color: var(--fg);
+}
+
+.crate-index a.is-active {
+  transform: translateX(-10px);
+}
+
+/* Na úzkém displeji by seznam zasahoval do obalů, alba jsou i v menu. */
+@media (max-width: 700px) {
+  .crate-index {
+    display: none;
+  }
+}
+
+.crate-hint {
+  position: absolute;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 10px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--muted);
+  transition: opacity 0.8s var(--ease-soft);
+}
+
+/* Nápověda je jen při prvním načtení, po prvním scrollnutí zmizí. */
+.crate:not(.is-quiet) .crate-hint {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Šipka se jen nepatrně a pomalu pohupuje. */
+.hint-arrow {
+  width: 10px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: hint-down 2.8s var(--ease-in-out) infinite;
+}
+
+@keyframes hint-down {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateY(-2px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(3px);
+  }
+}
+
+.empty {
+  padding: 30vh 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ===== Album ===== */
+
+.album {
+  padding-top: clamp(100px, 16vh, 160px);
+}
+
+.album-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: clamp(44px, 8vh, 88px);
+  text-align: center;
+}
+
+.back {
+  display: inline-flex;
+  gap: 0.6em;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: color 0.4s;
+}
+
+.back span {
+  transition: transform 0.6s var(--ease-out);
+}
+
+.back:hover {
+  color: var(--fg);
+}
+
+.back:hover span {
+  transform: translateX(-4px);
+}
+
+.album-title {
+  margin: 0;
+  font: 400 clamp(48px, 7vw, 116px)/0.95 var(--title);
+  letter-spacing: -0.03em;
+}
+
+.album-about {
+  max-width: 60ch;
+  margin-top: 10px;
+}
+
+.album-desc {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+.album-desc + .album-desc {
+  margin-top: 12px;
+}
+
+.jg {
+  position: relative;
+  column-gap: var(--gap);
+}
+
+.tile {
+  position: absolute;
+  display: block;
+  cursor: zoom-in;
+}
+
+@media (hover: hover) {
+  .tile:hover img {
+    transform: scale(1.012);
+  }
+}
+
+.lb-hidden {
+  visibility: hidden;
+}
+
+.album-next {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: clamp(110px, 22vh, 240px) 0 clamp(40px, 8vh, 100px);
+  text-align: center;
+}
+
+.album-next a {
+  font: 400 clamp(40px, 6vw, 96px)/1 var(--title);
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.album-next a span {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 0.6em;
+  transition: transform 0.8s var(--ease-out);
+}
+
+.album-next a:hover span {
+  transform: translateX(10px);
+}
+
+/* Psací stroj neuměl přehlásky: „ä“ je „a“ a přes něj napsané uvozovky. */
+.ovr {
+  position: relative;
+  display: inline-block;
+}
+
+.ovr > span {
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  transform: translateY(var(--ovr-y, 0.14em));
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ===== Menu s výběrem alb (přes celou obrazovku, vyjíždí zprava) ===== */
+
+.menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-right: -10px;
+  padding: 10px;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.menu-current {
+  view-transition-name: menu-current;
+  max-width: 40vw;
+  overflow: hidden;
+  color: var(--muted);
+  font: 400 calc(15px * var(--ts)) / 1.2 var(--title);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.4s, opacity 0.5s var(--ease-soft);
+}
+
+.menu-btn:hover .menu-current {
+  color: var(--fg);
+}
+
+html.menu-open .menu-current {
+  opacity: 0;
+}
+
+.burger {
+  position: relative;
+  flex: none;
+  width: 26px;
+  height: 14px;
+}
+
+.burger i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  transform-origin: center;
+  transition: top 0.5s var(--ease-out), transform 0.6s var(--ease-out), opacity 0.3s;
+}
+
+.burger i:nth-child(1) {
+  top: 0;
+}
+
+.burger i:nth-child(2) {
+  top: 6.25px;
+  transform-origin: right;
+}
+
+.burger i:nth-child(3) {
+  top: 12.5px;
+}
+
+@media (hover: hover) {
+  .menu-btn:hover .burger i:nth-child(2) {
+    transform: scaleX(0.65);
+  }
+}
+
+.menu-btn[aria-expanded='true'] .burger i:nth-child(1) {
+  top: 6.25px;
+  transform: rotate(45deg);
+}
+
+.menu-btn[aria-expanded='true'] .burger i:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-btn[aria-expanded='true'] .burger i:nth-child(3) {
+  top: 6.25px;
+  transform: rotate(-45deg);
+}
+
+html.menu-open {
+  overflow: hidden;
+}
+
+html.menu-open .site-header {
+  background: transparent;
+}
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  background: var(--menu-bg);
+  view-transition-name: menu-panel;
+}
+
+/* Měkký stín na náběžné hraně menu. Je vidět jen během vyjíždění a zajíždění (app.js). */
+.menu-edge {
+  position: absolute;
+  top: 0;
+  right: 100%;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to left, var(--edge), transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.menu[hidden] {
+  display: none;
+}
+
+.menu-body {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34vw;
+  align-items: center;
+  gap: 0 clamp(32px, 6vw, 120px);
+  padding: clamp(96px, 15vh, 150px) var(--pad) clamp(48px, 8vh, 96px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.menu-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu-item {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(14px, 2vw, 28px);
+  padding: 0.14em 0;
+  text-decoration: none;
+  transition: opacity 0.6s var(--ease-soft);
+}
+
+.menu-num {
+  position: relative;
+  min-width: 2ch;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-feature-settings: 'tnum';
+}
+
+.menu-item[aria-current='page'] .menu-num {
+  color: var(--fg);
+}
+
+/* Aktuální album: jemná šipka vlevo od čísla. */
+.menu-item[aria-current='page'] .menu-num::before {
+  content: '>';
+  position: absolute;
+  right: 100%;
+  margin-right: 0.6em;
+  animation: nudge 1.8s var(--ease-in-out) infinite;
+}
+
+@keyframes nudge {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+.menu-title {
+  font: 400 clamp(40px, 5.4vw, 88px)/1.08 var(--title);
+  letter-spacing: -0.02em;
+  transition: transform 0.9s var(--ease-out);
+}
+
+.menu-meta {
+  margin-left: auto;
+  padding-left: 16px;
+  white-space: nowrap;
+}
+
+/* Obal alba, na které ukazuje myš. Je uvnitř menu, takže s ním i vyjíždí. */
+.menu-preview {
+  position: absolute;
+  top: 50%;
+  right: var(--pad);
+  width: 34vw;
+  aspect-ratio: 3 / 2;
+  translate: 0 -50%;
+  pointer-events: none;
+}
+
+.menu-preview img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 0.7s var(--ease-soft), transform 1.6s var(--ease-out);
+}
+
+.menu-preview img.on {
+  opacity: 1;
+  transform: none;
+}
+
+
+
+@media (hover: hover) {
+  .menu-list.hovering .menu-item:not(.active) {
+    opacity: 0.35;
+  }
+  .menu-item.active .menu-title {
+    transform: translateX(14px);
+  }
+}
+
+@media (max-width: 900px), (hover: none) {
+  .menu-body {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  .menu-preview {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .menu-meta {
+    display: none;
+  }
+}
+
+/* ===== Úpravy velikostí pro jednotlivá písma ===== */
+
+:root[data-styl='podpis'] .brand {
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+:root[data-styl='podpis'] .card-title {
+  font-size: clamp(34px, 3.3vw, 50px);
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+:root[data-styl='podpis'] .album-title {
+  font-size: clamp(64px, 9.5vw, 156px);
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+:root[data-styl='podpis'] .album-next a {
+  font-size: clamp(54px, 7.6vw, 124px);
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+:root[data-styl='podpis'] .menu-title {
+  font-size: clamp(48px, 6.6vw, 108px);
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+:root[data-styl='stroj'] body {
+  font-size: 14.5px;
+}
+
+:root[data-styl='stroj'] .meta,
+:root[data-styl='stroj'] .lb-info {
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+}
+
+:root[data-styl='stroj'] .brand {
+  font-size: calc(19px * var(--ts));
+}
+
+:root[data-styl='stroj'] .card-title {
+  font-size: calc(clamp(19px, 1.8vw, 27px) * var(--ts));
+  letter-spacing: 0;
+}
+
+:root[data-styl='stroj'] .album-title {
+  font-size: calc(clamp(36px, 5.8vw, 96px) * var(--ts));
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+:root[data-styl='stroj'] .album-next a {
+  font-size: calc(clamp(28px, 4.2vw, 66px) * var(--ts));
+  letter-spacing: -0.01em;
+}
+
+:root[data-styl='stroj'] .menu-title {
+  font-size: calc(clamp(30px, 4.2vw, 68px) * var(--ts));
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* Uncle Typewriter: tučné uvozovky nad „ä“ a víc místa kolem, písmo má kolem sebe inkoustové cákance. */
+:root[data-pismo='uncle-typewriter'] .ovr > span,
+:root[data-brand-pismo='uncle-typewriter'] .brand .ovr > span {
+  font-weight: 700;
+}
+
+:root[data-pismo='uncle-typewriter'] .album-head {
+  gap: 24px;
+}
+
+:root[data-brand-case='lower'] .brand {
+  text-transform: lowercase;
+}
+
+:root[data-case='lower'] :is(.crate-title, .crate-index a, .album-title, .album-next a, .menu-title, .menu-current) {
+  text-transform: lowercase;
+}
+
+/* ===== Kurzor ===== */
+
+html.has-cursor,
+html.has-cursor * {
+  cursor: none !important;
+}
+
+.cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  view-transition-name: cursor;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: difference;
+  transition: opacity 0.4s var(--ease-soft);
+}
+
+.cursor.on {
+  opacity: 1;
+}
+
+html:has(.lb.idle) .cursor {
+  opacity: 0;
+}
+
+.cursor-ring,
+.cursor-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.cursor-dot::before,
+.cursor-ring::before {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.cursor-dot::before {
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  background: #fff;
+  transition: transform 0.3s var(--ease-out);
+}
+
+.cursor-ring::before {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  transition: transform 0.6s var(--ease-out), background-color 0.5s var(--ease-soft);
+}
+
+.cursor.is-link .cursor-ring::before {
+  transform: scale(1.25);
+}
+
+.cursor.is-photo .cursor-ring::before {
+  transform: scale(1.3);
+}
+
+.cursor.is-down .cursor-ring::before {
+  transform: scale(0.8);
+}
+
+/* ===== Prohlížeč fotek ===== */
+
+.lb {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.lb[hidden] {
+  display: none;
+}
+
+.lb:focus {
+  outline: none;
+}
+
+.lb-bg {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 58%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(1.2);
+  backdrop-filter: blur(30px) saturate(1.2);
+}
+
+.lb-stage {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.lb-track {
+  position: absolute;
+  inset: 0;
+}
+
+.lb-slide {
+  position: absolute;
+  margin: 0;
+  overflow: hidden;
+  transform-origin: 0 0;
+  background-color: var(--c, var(--ph));
+  will-change: transform;
+}
+
+.lb-slide img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.lb-slide .lo.blur {
+  inset: -8%;
+  width: 116%;
+  height: 116%;
+  filter: blur(24px);
+}
+
+.lb-slide .hi {
+  opacity: 0;
+  transition: opacity 0.7s var(--ease-soft);
+}
+
+.lb-slide .hi.ok {
+  opacity: 1;
+}
+
+.lb-slide .hi.now {
+  transition: none;
+}
+
+.lb-ui > * {
+  transition: opacity 0.6s var(--ease-soft);
+}
+
+.lb.idle {
+  cursor: none;
+}
+
+.lb.idle .lb-ui > * {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lb-btn {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.4s var(--ease-soft);
+}
+
+.lb-btn:hover {
+  opacity: 1;
+}
+
+.lb-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lb-btn:disabled {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.lb-close {
+  top: max(10px, env(safe-area-inset-top));
+  right: 10px;
+}
+
+/* Šipky nahoru a dolů vpravo, fotky se posouvají svisle. */
+.lb-prev,
+.lb-next {
+  right: 10px;
+}
+
+.lb-prev {
+  top: calc(50% - 56px);
+}
+
+.lb-next {
+  top: calc(50% + 4px);
+}
+
+.lb-info {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  color: var(--muted);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  font-feature-settings: 'tnum';
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .lb-prev,
+  .lb-next {
+    display: none;
+  }
+  .lb-info {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+  }
+}
+
+html.lb-open {
+  overflow: hidden;
+}
+
+/* ===== Přechody mezi stránkami (View Transitions) ===== */
+
+::view-transition-group(*) {
+  animation-duration: 1s;
+  animation-timing-function: var(--ease-page);
+}
+
+/* Vpřed (do alba): nová stránka přijede zprava jako list papíru, stará pod ní uhne doleva a zbledne. */
+html[data-vt='forward']::view-transition-old(root) {
+  animation: 1s var(--ease-page) both vt-push-left;
+}
+
+html[data-vt='forward']::view-transition-new(root) {
+  animation: 1s var(--ease-page) both vt-from-right;
+  box-shadow: -40px 0 90px var(--shadow);
+}
+
+/* Zpět (na úvod): album odjede doprava a odkryje úvodní stránku, která se vrátí zleva. */
+html[data-vt='back']::view-transition-old(root) {
+  z-index: 1;
+  animation: 1s var(--ease-page) both vt-to-right;
+  box-shadow: -40px 0 90px var(--shadow);
+}
+
+html[data-vt='back']::view-transition-new(root) {
+  animation: 1s var(--ease-page) both vt-from-left;
+}
+
+/* Z menu: stránka pod menu je hotová a menu odjede doleva, jako by se otočil list. */
+html[data-vt='menu']::view-transition-old(root) {
+  animation: none;
+  opacity: 0;
+}
+
+html[data-vt='menu']::view-transition-new(root) {
+  animation: none;
+}
+
+html[data-vt='menu']::view-transition-old(menu-panel) {
+  animation: 0.95s var(--ease-page) both vt-to-left;
+}
+
+/* Přepnutí světlého a tmavého režimu: jen prolnutí. */
+html[data-vt='theme']::view-transition-group(*) {
+  animation-duration: 0.7s;
+}
+
+html[data-vt='theme']::view-transition-old(root) {
+  animation: none;
+}
+
+html[data-vt='theme']::view-transition-new(root) {
+  animation: 0.7s var(--ease-soft) both vt-fade;
+}
+
+html[data-vt='theme']::view-transition-old(theme-btn) {
+  display: none;
+}
+
+html[data-vt='theme']::view-transition-new(theme-btn) {
+  animation: none;
+}
+
+/* Kurzor se při přechodu nehýbe se stránkou. */
+::view-transition-group(cursor) {
+  animation: none;
+  mix-blend-mode: difference;
+}
+
+::view-transition-old(cursor) {
+  display: none;
+}
+
+::view-transition-new(cursor) {
+  animation: none;
+}
+
+@keyframes vt-push-left {
+  to {
+    transform: translateX(-16%);
+    opacity: 0.4;
+  }
+}
+
+@keyframes vt-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes vt-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes vt-from-left {
+  from {
+    transform: translateX(-16%);
+    opacity: 0.4;
+  }
+}
+
+@keyframes vt-to-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes boot-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ===== Omezený pohyb ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  .hint-arrow,
+  .menu-item[aria-current='page'] .menu-num::before {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .ph img,
+  .card:hover .card-media img,
+  .tile:hover img {
+    transform: none;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01s !important;
+    animation-delay: 0s !important;
+  }
+}
