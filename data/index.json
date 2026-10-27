@@ -13,6 +13,98 @@
  },
  "albums": [
   {
+   "slug": "canada",
+   "title": "Canada",
+   "date": "July 2025",
+   "place": "",
+   "description": "",
+   "count": 12,
+   "cover": {
+    "id": "mee",
+    "e": "avif",
+    "w": 1347,
+    "h": 2400,
+    "v": [
+     359,
+     718,
+     1347
+    ],
+    "c": "#d8b8a8",
+    "q": "data:image/webp;base64,UklGRiwBAABXRUJQVlA4ICABAABQBwCdASoYACsAPu1mrlEppSQiqrgKATAdiUATpnOZT6QAM6o270t/SJRzGifkQO98vwOZ3u/Rm01YgKm+oofYeuAAAP6xdY6vLq0AhIMGaIz9+qMtPYa9R2cJDoxPk9X/f0JX1Sr3KXZ9WMQ/LlG/LXABknP1Z1ws25YEYCVaDBFYGpwHqR7o0bRmyfeEpoxAPs7rpJgPVFerYua2HEGgFy3RCP7DUMvkjc4CffWUTKXJ0DPswpZjGlF1NAeo17BB1Ob06H70G+k7IToFcXyyAI9XYGIbd4CdHkvb75S2/EpCHf8QcDh1FCrjsJi/2BBmKphStm8shs+O16h3w1dEuNFjbbxBEDOmmqSwMF56mv6hVKtprwjf0sDKMQr0AAA=",
+    "x": "Canon EOS M50 · 85 mm · f/1.8 · 1/320 s · ISO 100",
+    "t": "mee"
+   }
+  },
+  {
+   "slug": "kunsthalle",
+   "title": "Kunsthalle",
+   "date": "April 2025",
+   "place": "",
+   "description": "",
+   "count": 4,
+   "cover": {
+    "id": "string",
+    "e": "avif",
+    "w": 1347,
+    "h": 2400,
+    "v": [
+     359,
+     718,
+     1347
+    ],
+    "c": "#480808",
+    "q": "data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAADQBACdASoYACsAPu1kp04ppaMiMBVdUTAdiWgAnTNQvAgT4LK5nykIEE99wLktMAD+7lba6UY52t/bfzf/EOtr5bHxqip8qnutNByNbgyUCI+Ilh4G0p2otV7zY2SSu42iVio0ahWUPYUTmcOU8KJS7HnZuBo8zrrEXDZFM1n6GFArMjZpe2v7Phy0fpAA",
+    "x": "Canon EOS M50 · 70 mm · f/5 · 1/100 s · ISO 6400",
+    "t": "string"
+   }
+  },
+  {
+   "slug": "cats",
+   "title": "Cats",
+   "date": "March 2025",
+   "place": "",
+   "description": "",
+   "count": 13,
+   "cover": {
+    "id": "dirty",
+    "e": "avif",
+    "w": 1347,
+    "h": 2400,
+    "v": [
+     359,
+     718,
+     1347
+    ],
+    "c": "#d8d8d8",
+    "q": "data:image/webp;base64,UklGRmIBAABXRUJQVlA4IFYBAAAwCACdASoYACsAPu1wrVIppiQipWsxMB2JZAC1G370tsk3UyDPRL9lw1rvKDJG6YodKP9GbaUB5F9VrmGXy7Cw1NcCGuu1jwSLQAD+99H4y+fa1Y28vY3Bn0hmb3ZtFhWfPXXGevYJrzpmTmwsA3gUsksNlK+X2pRZcFmbu/CosP7hSF6/vMaFR2ovIeM2soC3EXhG8KtNeGdbx2VD65qUlCVuNRXYFSIDxshigYn5t2Y40+atHP/a8b4N+j9KXMYb1WoG3jSVU/LBjd98xykMSIL5eN8s0dYafdG/s2CSVStDJLlMntdsXrVF2xww1OQso0tgziA3pIVUnbFKwLMK8zuMcD90vmFdfgFLSizUMwa4WFs0Q689D0BB3m6r+0UspSaRqkM25NKHzEcLjc5qfsLcRERb4tyB+UTED+rgjCGT6s8FTt2nVZKItXyIOI8mw6uaAAA=",
+    "x": "Canon EOS M50 · 92 mm · f/5.6 · 1/4000 s · ISO 250",
+    "t": "dirty"
+   }
+  },
+  {
+   "slug": "cesky-krumlov",
+   "title": "Český Krumlov",
+   "date": "2025",
+   "place": "",
+   "description": "",
+   "count": 18,
+   "cover": {
+    "id": "golden-hour",
+    "e": "avif",
+    "w": 1600,
+    "h": 2399,
+    "v": [
+     427,
+     854,
+     1601
+    ],
+    "c": "#8898a8",
+    "q": "data:image/webp;base64,UklGRrIAAABXRUJQVlA4IKYAAACQBQCdASoYACQAPtVWoU2oJKMiOrmYAQAaiWYAsR+wB7/NEEjXAMPu/c4GceQM8wdmjYiTQADKkfF6omQbfQho5DuwofhwXq5berE4kG/j4oy+FBc1UtQTxzGxbX/S7A3s7Q8EOf3A1+Mr8qcb72NCZkY38hSfDRY4Sg50+LkVNgsQB+swxR953welwwykPfvgZMQLLOGAKcBhmlSQCB3ibcPHCAAA",
+    "x": "Canon EOS M50 · 122 mm · f/7.1 · 1/400 s · ISO 125",
+    "t": "golden hour"
+   }
+  },
+  {
    "slug": "albania",
    "title": "Albania",
    "date": "August 2024",
@@ -33,6 +125,29 @@
     "q": "data:image/webp;base64,UklGRhYBAABXRUJQVlA4IAoBAABQBwCdASoYACsAPu1cqE4ppKOiNVQMATAdiWgAvnuKL0AJrsU4ffHqSsxYaAR2Xgo5szc+9YmRER5wPv66CbqfAdbAAP7Fd8uRiDBHv8K1DXKmLQ+MU1poUJbTEcGw2riKCuj/fEunzvEwrqk3AIcHYryWP/K8j9O2TwCzv3FyLwyOqCrFQB3LDM0EEOHlENDgw0u6N2oq1NkTYkgQNuA7ObNDJdFaNdbIxhn1q5E/WD7+4PQiDCrT2x4OkM7Kc+55GaY/dv8QXgelFjPmZsoX3H9/cSBsbtMpWeiYHbxpSQwG315Tp9dv+M8hZrFJA/mZRY6Z0GmhORHlSpk7u1RGeoE2mcuUsAAAAA==",
     "x": "Canon EOS M50 · 55 mm · f/5 · 1/125 s · ISO 100",
     "t": "careful where you step"
+   }
+  },
+  {
+   "slug": "lednice",
+   "title": "Lednice",
+   "date": "August 2024",
+   "place": "",
+   "description": "",
+   "count": 7,
+   "cover": {
+    "id": "castle",
+    "e": "avif",
+    "w": 1347,
+    "h": 2400,
+    "v": [
+     359,
+     718,
+     1347
+    ],
+    "c": "#88d8f8",
+    "q": "data:image/webp;base64,UklGRl4BAABXRUJQVlA4IFIBAACQCACdASoYACsAPu1oq1AppaOiqrgMATAdiWwAnTKEeE+18cJlXhRQtp/k0IO4nJHsEj6a1/AGLwPzwlJ6nEEJtMAy1r6vDYeQv+pKAAD+3s6G4WaXhmKCSIQPSDQ8MhBDJLGedeP2dHIWdnP/FrVstCqMl9+P8iCGwK0I1zGzgXZ1xQcjrGjeyPfwEKagz83IS/qR6vI5OhhqZ4FvUk5iNgMkCrU77vkyYDz73ViGhibYlg9UYLVzX3RInFcdryztwXyTleNgBgjtQWr+G115NJvBcw1ShJ5RZxyacStDHFQ6ran6AVUCq/iKGoCPw/b2sAsvo/wixhPB3FnDkXcN402RKNJ3a7cM1Zp4CdKsZjxCpdzQHlTGgeBixBBAjIfix/cfDDulhQiyGkfbmHqt+mLg8TS2Z9WPV0Ry34CstOYIQ6YGvNuZH6rjfn4PfbxYAA==",
+    "x": "Canon EOS M50 · 55 mm · f/4.5 · 1/2000 s · ISO 100",
+    "t": "castle"
    }
   }
  ]

@@ -65,6 +65,22 @@ function parseAlbumTxt(text) {
   return out;
 }
 
+// Datum z album.txt („July 2025“, „červenec 2025“, „2025“) pro řazení alb. Hodí se, když má
+// foťák špatně nastavené hodiny a datum z fotek nesedí.
+const CZ_MONTHS = ['leden', 'unor', 'brezen', 'duben', 'kveten', 'cerven', 'cervenec', 'srpen', 'zari', 'rijen', 'listopad', 'prosinec'];
+function parseDateText(text) {
+  const t = stripDiacritics(String(text || '')).toLowerCase();
+  const year = t.match(/\b(19|20)\d{2}\b/)?.[0];
+  if (!year) return null;
+  let month = MONTHS.findIndex((m) => t.includes(m.toLowerCase()));
+  if (month < 0) {
+    // „cervenec“ obsahuje „cerven“, proto se hledá od nejdelšího názvu
+    const byLength = CZ_MONTHS.map((m, i) => [m, i]).sort((a, b) => b[0].length - a[0].length);
+    month = byLength.find(([m]) => t.includes(m))?.[1] ?? 0;
+  }
+  return `${year}-${String(month + 1).padStart(2, '0')}-01T00:00:00.000Z`;
+}
+
 function formatExif(ex) {
   if (!ex) return '';
   const I = ex.Image || {};
@@ -337,7 +353,7 @@ async function main() {
       description: a.info.popis || '',
       count: photos.length,
       cover: photos[coverIndex],
-      sort: first ? first.toISOString() : '',
+      sort: parseDateText(a.info.datum) || (first ? first.toISOString() : ''),
       folder: a.folder,
     };
     index.push(album);
