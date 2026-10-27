@@ -353,6 +353,9 @@ const crate = {
     clearTimeout(this.snapTimer);
     if (!this.el?.isConnected || this.n < 2) return;
     this.snapTimer = setTimeout(() => {
+      // Mezitím se mohlo otevřít album: bez desek by se srovnávalo podle staré pozice
+      // a nová stránka by odjela dolů.
+      if (!this.el?.isConnected || state.view !== 'home') return;
       this.update();
       const y = window.scrollY;
       if (y < this.top - 2 || y > this.top + (this.n - 1) * this.step + 2) return;
@@ -642,6 +645,7 @@ async function showAlbum(slug, { initial = false, photo = null } = {}) {
   }
 
   if (state.view === 'home') state.homeScroll = window.scrollY;
+  clearTimeout(crate.snapTimer);
   await swap(
     () => {
       renderAlbum(album, data);
