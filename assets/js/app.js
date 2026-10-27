@@ -10,6 +10,8 @@ const footer = document.getElementById('footer');
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const canVT = typeof document.startViewTransition === 'function' && !reduceMotion;
+// Na dotykovém displeji se alba na úvodu listují tažením do stran, na počítači scrollováním.
+const swipeMQ = matchMedia('(hover: none) and (pointer: coarse)');
 
 const EASE_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
 const EASE_SOFT = 'cubic-bezier(0.25, 0.1, 0.1, 1)';
@@ -23,6 +25,7 @@ const state = {
   album: null,
   photos: [],
   homeScroll: null,
+  homeIndex: null,
 };
 
 let lenis = null;
@@ -145,8 +148,9 @@ function typeset(text, info = fontInfo) {
 // ===== Úvod =====
 
 // Úvod je „přihrádka“: obaly alb jsou založené za sebou jako složky. Aktuální album je vepředu
-// vlevo dole, další stojí za ním vějířem doprava nahoru. Listuje se obyčejným scrollováním:
-// sekce je vysoká a scénu drží position: sticky. Listnuté album odjede doleva dolů a zmizí.
+// vlevo dole, další stojí za ním vějířem doprava nahoru. Na počítači se listuje obyčejným
+// scrollováním: sekce je vysoká a scénu drží position: sticky. Na dotykovém displeji se listuje
+// tažením prstu do stran. Listnuté album odjede doleva dolů a zmizí.
 
 function vinylHTML(a, i) {
   const p = a.cover;
@@ -162,11 +166,17 @@ function vinylHTML(a, i) {
 function renderHome({ intro = false } = {}) {
   const { site, albums } = state;
   const total = albums.reduce((n, a) => n + a.count, 0);
+  const swipe = swipeMQ.matches;
+  const hint = swipe
+    ? `<svg class="hint-arrow" viewBox="0 0 22 10"><path d="M21 5H2M5.5 1.5L2 5l3.5 3.5"/></svg>
+            <span class="meta">swipe</span>`
+    : `<span class="meta">scroll</span>
+            <svg class="hint-arrow" viewBox="0 0 10 22"><path d="M5 1v19M1.5 16.5L5 20l3.5-3.5"/></svg>`;
   if (!albums.length) {
     view.innerHTML = `<p class="empty">No albums yet.</p>`;
   } else {
     view.innerHTML = `
-      <section class="crate">
+      <section class="crate${swipe ? ' is-swipe' : ''}">
         <h1 class="sr">${esc([site.jmeno, site.nadpis || 'Photography'].filter(Boolean).join(', '))}</h1>
         <div class="crate-stage">
           <div class="crate-deck">${albums.map(vinylHTML).join('')}</div>
@@ -182,8 +192,7 @@ function renderHome({ intro = false } = {}) {
               .join('')}</ol>
           </nav>
           <div class="crate-hint" aria-hidden="true">
-            <span class="meta">scroll</span>
-            <svg class="hint-arrow" viewBox="0 0 10 22"><path d="M5 1v19M1.5 16.5L5 20l3.5-3.5"/></svg>
+            ${hint}
           </div>
         </div>
       </section>`;
@@ -207,13 +216,24 @@ const crate = {
   geo: null,
   intro: null,
   snapTimer: 0,
+  swipe: false, // listuje se tažením do stran (dotykový displej)
+  hpos: 0, // pozice při listování do stran: 0 = první album, 1 = druhé…
+  dragStep: 200, // kolik pixelů tažení je jedno album
+  drag: null,
+  anim: 0,
+  suppressClick: 0,
 
   mount(el, { intro = false } = {}) {
     this.el = el;
     this.active = -1;
+    cancelAnimationFrame(this.anim);
+    this.drag = null;
     if (!el) return;
     this.quiet = intro; // názvy se ukážou až po prvním scrollnutí
     el.classList.toggle('is-quiet', this.quiet);
+    this.swipe = el.classList.contains('is-swipe');
+    this.hpos = 0;
+    if (this.swipe) this.bindSwipe(el.querySelector('.crate-stage'));
     this.cards = [...el.querySelectorAll('.vinyl')];
     this.links = [...el.querySelectorAll('.crate-index a')];
     this.n = this.cards.length;
@@ -238,7 +258,9 @@ const crate = {
     const H = window.innerHeight;
     const small = W < 700;
     this.step = Math.round(Math.min(420, Math.max(220, H * 0.36)));
-    this.el.style.height = `${H + (this.n - 1) * this.step}px`;
+    // Při listování do stran je sekce vysoká jen jednu obrazovku.
+    this.el.style.height = this.swipe ? '' : `${H + (this.n - 1) * this.step}px`;
+    this.dragStep = Math.max(140, W * 0.42);
     const angle = 0.32; // asi 18°
     const cw = small ? W * 0.56 : Math.min(400, Math.max(220, W * 0.23));
     this.el.style.setProperty('--cw', `${cw}px`);
@@ -281,9 +303,13 @@ const crate = {
   update() {
     if (!this.el?.isConnected) return;
     const { tan, fan, away, x0, y0, W } = this.geo;
-    const range = Math.max(1, (this.n - 1) * this.step);
-    const p = Math.min(1, Math.max(0, (window.scrollY - this.top) / range));
-    this.pos = this.n > 1 ? p * (this.n - 1) : 0;
+    if (this.swipe) {
+      this.pos = this.n > 1 ? this.hpos : 0;
+    } else {
+      const range = Math.max(1, (this.n - 1) * this.step);
+      const p = Math.min(1, Math.max(0, (window.scrollY - this.top) / range));
+      this.pos = this.n > 1 ? p * (this.n - 1) : 0;
+    }
     const now = performance.now();
     for (let i = 0; i < this.n; i++) {
       const d = i - this.pos;
@@ -343,15 +369,107 @@ const crate = {
   },
 
   goTo(i) {
-    const y = this.scrollFor(Math.max(0, Math.min(this.n - 1, i)));
+    i = Math.max(0, Math.min(this.n - 1, i));
+    if (this.swipe) return this.animateTo(i);
+    const y = this.scrollFor(i);
     if (lenis) lenis.scrollTo(y, { duration: 1.2 });
     else window.scrollTo({ top: y, behavior: 'smooth' });
+  },
+
+  setPos(i) {
+    cancelAnimationFrame(this.anim);
+    this.hpos = Math.max(0, Math.min(this.n - 1, i));
+    this.update();
+  },
+
+  // Plynulé dojetí na album při listování do stran.
+  animateTo(target) {
+    cancelAnimationFrame(this.anim);
+    const from = this.hpos;
+    const dist = Math.abs(target - from);
+    if (dist < 0.001 || reduceMotion) return this.setPos(target);
+    const dur = Math.min(950, 520 + dist * 160);
+    const t0 = performance.now();
+    const frame = (now) => {
+      if (!this.el?.isConnected) return;
+      const t = Math.min(1, (now - t0) / dur);
+      this.hpos = from + (target - from) * (1 - Math.pow(1 - t, 4));
+      this.update();
+      if (t < 1) this.anim = requestAnimationFrame(frame);
+    };
+    this.anim = requestAnimationFrame(frame);
+  },
+
+  // Tažení prstem do stran. Svislý pohyb si nechává prohlížeč (touch-action: pan-y),
+  // takže stránka jde dál scrollovat dolů k patičce.
+  bindSwipe(stage) {
+    stage.addEventListener('pointerdown', (e) => this.dragStart(e));
+    stage.addEventListener('pointermove', (e) => this.dragMove(e));
+    stage.addEventListener('pointerup', (e) => this.dragEnd(e));
+    stage.addEventListener('pointercancel', (e) => this.dragEnd(e));
+    // Po tažení se neotevírá album, na kterém prst začal.
+    stage.addEventListener(
+      'click',
+      (e) => {
+        if (performance.now() < this.suppressClick) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      },
+      true
+    );
+  },
+
+  dragStart(e) {
+    if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    cancelAnimationFrame(this.anim);
+    this.drag = { id: e.pointerId, x: e.clientX, from: this.hpos, moved: false, samples: [[e.timeStamp, this.hpos]] };
+  },
+
+  dragMove(e) {
+    const d = this.drag;
+    if (!d || e.pointerId !== d.id) return;
+    const dx = e.clientX - d.x;
+    if (!d.moved) {
+      if (Math.abs(dx) < 6) return;
+      d.moved = true;
+      this.reveal();
+    }
+    // Za prvním a posledním albem se táhne jen ztěžka, jako gumička.
+    const max = this.n - 1;
+    let p = d.from - dx / this.dragStep;
+    if (p < 0) p *= 0.35;
+    else if (p > max) p = max + (p - max) * 0.35;
+    this.hpos = p;
+    d.samples.push([e.timeStamp, p]);
+    if (d.samples.length > 6) d.samples.shift();
+    this.update();
+  },
+
+  dragEnd(e) {
+    const d = this.drag;
+    if (!d || e.pointerId !== d.id) return;
+    this.drag = null;
+    if (!d.moved) return; // obyčejné ťuknutí, album se otevře kliknutím
+    this.suppressClick = performance.now() + 400;
+    // Rychlost z posledních pohybů: švihnutí posune o album dál, i když prst ujel kousek,
+    // ale nanejvýš o jedno album navíc, ať se nepřeletí na konec.
+    const recent = d.samples.filter(([t]) => e.timeStamp - t < 120);
+    let v = 0;
+    if (recent.length > 1) {
+      const [t0, p0] = recent[0];
+      const [t1, p1] = recent[recent.length - 1];
+      v = (p1 - p0) / Math.max(1, t1 - t0);
+    }
+    let target = Math.round(this.hpos + Math.max(-1, Math.min(1, v * 220)));
+    if (target === Math.round(d.from) && Math.abs(v) > 0.002) target += Math.sign(v);
+    this.animateTo(Math.max(0, Math.min(this.n - 1, target)));
   },
 
   // Po dojetí scrollu se deska jemně dorovná na střed.
   scheduleSnap() {
     clearTimeout(this.snapTimer);
-    if (!this.el?.isConnected || this.n < 2) return;
+    if (!this.el?.isConnected || this.n < 2 || this.swipe) return;
     this.snapTimer = setTimeout(() => {
       // Mezitím se mohlo otevřít album: bez desek by se srovnávalo podle staré pozice
       // a nová stránka by odjela dolů.
@@ -386,6 +504,16 @@ for (const type of ['wheel', 'touchmove']) {
 window.addEventListener('resize', () => {
   if (!crate.el?.isConnected) return;
   crate.measure();
+  crate.update();
+});
+
+// Kdyby se způsob ovládání změnil (třeba připojená myš k tabletu), úvod se překreslí.
+swipeMQ.addEventListener?.('change', () => {
+  if (state.view !== 'home' || !crate.el?.isConnected) return;
+  const i = Math.max(0, crate.active);
+  renderHome();
+  if (crate.swipe) crate.setPos(i);
+  else jumpTo(crate.scrollFor(i));
   crate.update();
 });
 
@@ -613,7 +741,10 @@ async function showHome({ initial = false } = {}) {
     () => {
       renderHome({ intro: initial });
       const i = fromSlug ? state.albums.findIndex((a) => a.slug === fromSlug) : -1;
-      if (state.homeScroll != null) jumpTo(state.homeScroll);
+      if (crate.swipe) {
+        crate.setPos(state.homeIndex ?? Math.max(0, i));
+        jumpTo(state.homeScroll ?? 0);
+      } else if (state.homeScroll != null) jumpTo(state.homeScroll);
       else if (i >= 0) jumpTo(crate.scrollFor(i));
       else jumpTo(0);
       crate.loadY = window.scrollY;
@@ -644,8 +775,12 @@ async function showAlbum(slug, { initial = false, photo = null } = {}) {
     return;
   }
 
-  if (state.view === 'home') state.homeScroll = window.scrollY;
+  if (state.view === 'home') {
+    state.homeScroll = window.scrollY;
+    state.homeIndex = crate.active;
+  }
   clearTimeout(crate.snapTimer);
+  cancelAnimationFrame(crate.anim);
   await swap(
     () => {
       renderAlbum(album, data);

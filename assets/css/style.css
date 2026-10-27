@@ -540,6 +540,41 @@ html.lenis body {
   }
 }
 
+/* Na dotykovém displeji se alba listují tažením prstu do stran. Sekce je vysoká jen
+   jednu obrazovku a svislý pohyb prstu dál scrolluje stránkou k patičce. */
+.crate.is-swipe .crate-stage {
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.crate.is-swipe .vinyl {
+  -webkit-touch-callout: none;
+}
+
+.crate.is-swipe .crate-hint {
+  flex-direction: row;
+  padding: 11px 16px 11px 14px;
+}
+
+.crate.is-swipe .hint-arrow {
+  width: 22px;
+  height: 10px;
+  animation-name: hint-left;
+}
+
+@keyframes hint-left {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateX(2px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-3px);
+  }
+}
+
 .empty {
   padding: 30vh 0;
   color: var(--muted);
@@ -1367,6 +1402,7 @@ html[data-vt='theme']::view-transition-new(theme-btn) {
 
 @media (prefers-reduced-motion: reduce) {
   .hint-arrow,
+  .crate.is-swipe .hint-arrow,
   .menu-item[aria-current='page'] .menu-num::before {
     animation: none;
   }
