@@ -7,3 +7,6 @@ node_modules/
 
 # Písma, která se nesmí volně šířit (viz assets/fonts/LICENCE.md)
 assets/fonts/nezverejnovat/
+
+# Návod jen pro mě, na GitHub nepatří
+NAVOD.md
