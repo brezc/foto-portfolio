@@ -13,87 +13,25 @@
  },
  "albums": [
   {
-   "slug": "mountains",
-   "title": "Mountains",
-   "date": "August 2025",
+   "slug": "albania",
+   "title": "Albania",
+   "date": "August 2024",
    "place": "",
-   "description": "Generated sample images for testing the site. Delete this folder once you add your own albums.",
-   "count": 14,
+   "description": "",
+   "count": 17,
    "cover": {
-    "id": "img-1007",
-    "w": 2400,
-    "h": 1600,
-    "v": [
-     640,
-     1280,
-     2400
-    ],
-    "c": "#c8c8b8",
-    "q": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQBACdASoYABAAPu1krU6ppaSiMAgBMB2JZwCdACHXSXnnt8R+57/+RAD+j/ytpnsaUImK91sS7DjsqfAlSi2oioByyaveCNTTOVgAEz4AAA==",
-    "x": "Demo · 35 mm · f/2.8 · 1/250 s · ISO 200"
-   }
-  },
-  {
-   "slug": "sea",
-   "title": "Sea",
-   "date": "May 2025",
-   "place": "",
-   "description": "Generated sample images for testing the site. Delete this folder once you add your own albums.",
-   "count": 11,
-   "cover": {
-    "id": "img-1007",
-    "w": 2400,
-    "h": 1600,
-    "v": [
-     640,
-     1280,
-     2400
-    ],
-    "c": "#d8b8b8",
-    "q": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADwAwCdASoYABAAPu1kqk2ppaQiMAgBMB2JYwCxDMgDA1g2IKvd2+HAAP6P5yu969ySYcebwSCZY5pDXSq4DlgTQAA=",
-    "x": "Demo · 23 mm · f/8 · 1/125 s · ISO 400"
-   }
-  },
-  {
-   "slug": "fog",
-   "title": "Fog",
-   "date": "November 2024",
-   "place": "",
-   "description": "Generated sample images for testing the site. Delete this folder once you add your own albums.",
-   "count": 12,
-   "cover": {
-    "id": "img-1007",
-    "w": 1920,
+    "id": "careful-where-you-step",
+    "w": 1347,
     "h": 2400,
     "v": [
-     512,
-     1024,
-     1920
+     359,
+     718,
+     1347
     ],
-    "c": "#d8d8d8",
-    "q": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQBACdASoYAB4APtleo02oPaMiN/qoA7AbCWkAAQHIm+epBhmq5bLSgAD+8BHftWvXfLNyO+y5v/kCGL3BzWkqd+dcRUTfyBwlxRImAAA=",
-    "x": "Demo · 35 mm · f/2.8 · 1/250 s · ISO 200"
-   }
-  },
-  {
-   "slug": "desert",
-   "title": "Desert",
-   "date": "July 2024",
-   "place": "",
-   "description": "Generated sample images for testing the site. Delete this folder once you add your own albums.",
-   "count": 10,
-   "cover": {
-    "id": "img-1007",
-    "w": 2400,
-    "h": 1600,
-    "v": [
-     640,
-     1280,
-     2400
-    ],
-    "c": "#e8c8a8",
-    "q": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAADQAwCdASoYABAAPu1iqk4ppaQiMAgBMB2JQBOgBDv35GDtMOmmvgAA/t5vVDiQ9NeRPHcJ20ju6SbKAlR7M9gdA53vStQRlVW3HURrWvW8AAAA",
-    "x": "Demo · 56 mm · f/1.4 · 1/1000 s · ISO 160"
+    "c": "#080808",
+    "q": "data:image/webp;base64,UklGRhYBAABXRUJQVlA4IAoBAABQBwCdASoYACsAPu1cqE4ppKOiNVQMATAdiWgAvnuKL0AJrsU4ffHqSsxYaAR2Xgo5szc+9YmRER5wPv66CbqfAdbAAP7Fd8uRiDBHv8K1DXKmLQ+MU1poUJbTEcGw2riKCuj/fEunzvEwrqk3AIcHYryWP/K8j9O2TwCzv3FyLwyOqCrFQB3LDM0EEOHlENDgw0u6N2oq1NkTYkgQNuA7ObNDJdFaNdbIxhn1q5E/WD7+4PQiDCrT2x4OkM7Kc+55GaY/dv8QXgelFjPmZsoX3H9/cSBsbtMpWeiYHbxpSQwG315Tp9dv+M8hZrFJA/mZRY6Z0GmhORHlSpk7u1RGeoE2mcuUsAAAAA==",
+    "x": "Canon EOS M50 · 55 mm · f/5 · 1/125 s · ISO 100",
+    "t": "careful where you step"
    }
   }
  ]

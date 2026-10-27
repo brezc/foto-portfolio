@@ -25,7 +25,7 @@ const SUPPORTED = new Set(['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff', '.
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 // album.txt přijímá české i anglické názvy polí.
-const KEYS = { title: 'nazev', name: 'nazev', date: 'datum', place: 'misto', location: 'misto', description: 'popis', text: 'popis', cover: 'obal' };
+const KEYS = { title: 'nazev', name: 'nazev', date: 'datum', place: 'misto', location: 'misto', description: 'popis', text: 'popis', cover: 'obal', order: 'razeni' };
 
 const isTTY = process.stdout.isTTY;
 const log = (...a) => console.log(...a);
@@ -291,7 +291,12 @@ async function main() {
   for (const a of albums) {
     const ok = a.photos.filter((p) => p.result);
     if (!ok.length) continue;
-    const photos = ok.map((p) => p.result.photo);
+    // „order: date“ (razeni: datum) seřadí fotky podle data focení, jinak jdou podle názvu souboru.
+    if (/^dat/i.test(stripDiacritics(a.info.razeni || ''))) {
+      ok.sort((x, y) => (x.result.taken || '9').localeCompare(y.result.taken || '9') || x.name.localeCompare(y.name, 'cs', { numeric: true }));
+    }
+    // Název souboru (bez přípony) slouží jako popis fotky.
+    const photos = ok.map((p) => ({ ...p.result.photo, t: path.parse(p.name).name }));
 
     let coverIndex = 0;
     if (a.info.obal) {

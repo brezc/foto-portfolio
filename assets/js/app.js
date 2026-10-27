@@ -418,7 +418,7 @@ function renderAlbum(album, data) {
     .map(
       (p, i) => `
         <a class="tile ph reveal" href="${hrefPhoto(slug, i)}" data-i="${i}" style="${phStyle(p)}">
-          <img alt="${esc(album.title)}, photo ${i + 1}" loading="lazy" decoding="async">
+          <img alt="${esc(p.t || `${album.title}, photo ${i + 1}`)}" loading="lazy" decoding="async">
         </a>`
     )
     .join('');
@@ -831,7 +831,7 @@ const lb = (() => {
     }
     const hi = document.createElement('img');
     hi.className = 'hi';
-    hi.alt = `${state.album.title}, photo ${i + 1} of ${total()}`;
+    hi.alt = p.t || `${state.album.title}, photo ${i + 1} of ${total()}`;
     hi.decoding = 'async';
     hi.addEventListener('load', () => hi.classList.add('ok'), { once: true });
     fig.append(lo, hi);
