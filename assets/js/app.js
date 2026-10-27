@@ -72,7 +72,8 @@ function setInert(on) {
 // ===== Data =====
 
 async function loadIndex() {
-  const r = await fetch('data/index.json');
+  // Seznam alb se vždy ověří u serveru, ať se po nahrání nových fotek neukazuje starý.
+  const r = await fetch('data/index.json', { cache: 'no-cache' });
   if (!r.ok) throw new Error(`data/index.json: ${r.status}`);
   return r.json();
 }
@@ -80,7 +81,7 @@ async function loadIndex() {
 function loadAlbum(slug) {
   let p = state.data.get(slug);
   if (!p) {
-    p = fetch(`data/album/${encodeURIComponent(slug)}.json`).then((r) => {
+    p = fetch(`data/album/${encodeURIComponent(slug)}.json`, { cache: 'no-cache' }).then((r) => {
       if (!r.ok) throw new Error(`album ${slug}: ${r.status}`);
       return r.json();
     });

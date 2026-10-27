@@ -6,6 +6,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import sharp from 'sharp';
 import exifReader from 'exif-reader';
 
@@ -383,6 +384,16 @@ async function main() {
 
   await mkdir(path.dirname(CACHE_FILE), { recursive: true });
   await writeFile(CACHE_FILE, JSON.stringify(nextCache));
+
+  // Styly a skript dostanou v index.html značku verze podle obsahu. Po nahrání změn si je
+  // prohlížeč stáhne znovu, místo aby ještě chvíli používal staré z mezipaměti.
+  const htmlFile = path.join(ROOT, 'index.html');
+  let html = await readFile(htmlFile, 'utf8');
+  for (const asset of ['assets/css/style.css', 'assets/js/app.js']) {
+    const hash = createHash('md5').update(await readFile(path.join(ROOT, asset))).digest('hex').slice(0, 8);
+    html = html.replace(new RegExp(`${asset.replace(/[./]/g, '\\$&')}(\\?v=\\w+)?`), `${asset}?v=${hash}`);
+  }
+  await writeFile(htmlFile, html);
 
   // Shrnutí.
   let bytes = 0;
