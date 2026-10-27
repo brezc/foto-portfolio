@@ -34,7 +34,7 @@ const esc = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const count = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const pad2 = (n) => String(n).padStart(2, '0');
-const srcOf = (slug, p, w) => `img/${slug}/${p.id}-${w}.webp`;
+const srcOf = (slug, p, w) => `img/${slug}/${p.id}-${w}.${p.e || 'webp'}`;
 const srcsetOf = (slug, p) => p.v.map((w) => `${srcOf(slug, p, w)} ${w}w`).join(', ');
 const phStyle = (p) => `--c:${p.c};--q:url(${p.q})`;
 const hrefAlbum = (slug) => `#/${slug}`;

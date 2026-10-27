@@ -17,8 +17,10 @@ const CACHE_FILE = path.join(ROOT, '.cache', 'fotky.json');
 
 // Delší strana jednotlivých velikostí v pixelech. Prohlížeč si sám vybere tu, kterou potřebuje.
 const SIZES = [640, 1280, 2400];
-const QUALITY = 80;
-const BUILD_VERSION = 3; // zvýšit, když se změní způsob zpracování, aby se vše přegenerovalo
+// AVIF je zhruba o polovinu menší než WebP při stejné viditelné kvalitě, takže se na web vejde víc fotek.
+const FORMAT = 'avif';
+const QUALITY = 50;
+const BUILD_VERSION = 4; // zvýšit, když se změní způsob zpracování, aby se vše přegenerovalo
 
 const SUPPORTED = new Set(['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff', '.avif']);
 // Web je anglicky, proto i automatické datum alba.
@@ -153,8 +155,8 @@ async function processPhoto(file, albumSlug, id) {
     widths.push(w);
     await sharp(data, rawOpts)
       .resize({ width: w })
-      .webp({ quality: QUALITY, effort: 5, smartSubsample: true })
-      .toFile(path.join(IMG_DIR, albumSlug, `${id}-${w}.webp`));
+      .avif({ quality: QUALITY, effort: 4 })
+      .toFile(path.join(IMG_DIR, albumSlug, `${id}-${w}.${FORMAT}`));
   }
 
   const lqip = await sharp(data, rawOpts).resize({ width: 24 }).webp({ quality: 40 }).toBuffer();
@@ -164,6 +166,7 @@ async function processPhoto(file, albumSlug, id) {
   return {
     photo: {
       id,
+      e: FORMAT,
       w: info.width,
       h: info.height,
       v: widths,
@@ -265,7 +268,7 @@ async function main() {
     const cached = cache.entries[key];
     const outputsExist =
       cached && cached.album === album && cached.result.photo.id === entry.id &&
-      cached.result.photo.v.every((w) => existsSync(path.join(IMG_DIR, album, `${entry.id}-${w}.webp`)));
+      cached.result.photo.v.every((w) => existsSync(path.join(IMG_DIR, album, `${entry.id}-${w}.${cached.result.photo.e || 'webp'}`)));
 
     if (cached && cached.sig === sig && outputsExist) {
       entry.result = cached.result;
@@ -291,9 +294,24 @@ async function main() {
   for (const a of albums) {
     const ok = a.photos.filter((p) => p.result);
     if (!ok.length) continue;
-    // „order: date“ (razeni: datum) seřadí fotky podle data focení, jinak jdou podle názvu souboru.
-    if (/^dat/i.test(stripDiacritics(a.info.razeni || ''))) {
-      ok.sort((x, y) => (x.result.taken || '9').localeCompare(y.result.taken || '9') || x.name.localeCompare(y.name, 'cs', { numeric: true }));
+    // Pořadí fotek (album.txt → order):
+    //   order: date        podle data focení
+    //   order:             a pod tím názvy souborů, každý na řádku (přípona není nutná);
+    //                      fotky, které v seznamu chybí, jdou na konec podle data focení
+    //   bez order          podle názvu souboru
+    const byDate = (x, y) => (x.result.taken || '9').localeCompare(y.result.taken || '9') || x.name.localeCompare(y.name, 'cs', { numeric: true });
+    const order = (a.info.razeni || '').trim();
+    if (/^dat/i.test(stripDiacritics(order))) {
+      ok.sort(byDate);
+    } else if (order) {
+      const norm = (n) => stripDiacritics(path.parse(n.trim()).name).toLowerCase();
+      const wanted = order.split(/\r?\n/).map(norm).filter(Boolean);
+      const rank = (p) => {
+        const r = wanted.indexOf(norm(p.name));
+        return r < 0 ? wanted.length : r;
+      };
+      for (const w of wanted) if (!ok.some((p) => norm(p.name) === w)) warn(`${a.folder}: v pořadí je „${w}“, ale taková fotka ve složce není.`);
+      ok.sort((x, y) => rank(x) - rank(y) || byDate(x, y));
     }
     // Název souboru (bez přípony) slouží jako popis fotky.
     const photos = ok.map((p) => ({ ...p.result.photo, t: path.parse(p.name).name }));
@@ -340,7 +358,7 @@ async function main() {
   // Úklid: smaže webové verze fotek a alb, které už ve složce alba/ nejsou.
   const keepAlbums = new Set(index.map((a) => a.slug));
   const keepFiles = new Set();
-  for (const a of albums) for (const p of a.photos) if (p.result) for (const w of p.result.photo.v) keepFiles.add(`${a.slug}/${p.id}-${w}.webp`);
+  for (const a of albums) for (const p of a.photos) if (p.result) for (const w of p.result.photo.v) keepFiles.add(`${a.slug}/${p.id}-${w}.${p.result.photo.e || 'webp'}`);
 
   let removed = 0;
   if (existsSync(IMG_DIR)) {
@@ -352,7 +370,7 @@ async function main() {
         continue;
       }
       for (const f of await readdir(path.join(IMG_DIR, d.name))) {
-        if (f.endsWith('.webp') && !keepFiles.has(`${d.name}/${f}`)) {
+        if (/\.(webp|avif)$/.test(f) && !keepFiles.has(`${d.name}/${f}`)) {
           await rm(path.join(IMG_DIR, d.name, f));
           removed++;
         }

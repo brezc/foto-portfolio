@@ -13,6 +13,7 @@ const TYPES = {
   '.mjs': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.webp': 'image/webp',
+  '.avif': 'image/avif',
   '.jpg': 'image/jpeg',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
